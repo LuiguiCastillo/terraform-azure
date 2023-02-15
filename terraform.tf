@@ -6,7 +6,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>2.0" 
+      version = "~>2.0"
     }
   }
 }
@@ -32,24 +32,24 @@ resource "azurerm_virtual_network" "red_cloud" {
 resource "azurerm_subnet" "test_cloudazure" {
   name                 = "SubNet_private"
   resource_group_name  = azurerm_resource_group.test_cloudazure.name
-  virtual_network_name = azurerm_virtual_network.net_cloudazure.name
+  virtual_network_name = azurerm_virtual_network.red_cloud.name
   address_prefixes     = ["10.0.2.0/24"]
 }
 #==========================================================================#
 # SubNet Base de datos
-resource "azurerm_subnet" "red-bdd" {
+resource "azurerm_subnet" "red_bdd" {
 
   address_prefixes     = ["10.0.1.0/24"]
   name                 = " rednet-bdd"
   resource_group_name  = azurerm_resource_group.test_cloudazure.name
-  virtual_network_name = azurerm_virtual_network.net_cloudazure.name
+  virtual_network_name = azurerm_virtual_network.red_cloud.name
   service_endpoints    = ["Microsoft.Storage"]
 
   delegation {
     name = "fs"
 
     service_delegation {
-      name    = "Microsoft.DBforMySQL/flexibleServers"
+      name = "Microsoft.DBforMySQL/flexibleServers"
       actions = [
         "Microsoft.Network/virtualNetworks/subnets/join/action",
       ]
@@ -70,7 +70,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "link_dns_zone" {
   name                  = "vmbdd.com"
   private_dns_zone_name = azurerm_private_dns_zone.dns_zone.name
   resource_group_name   = azurerm_resource_group.test_cloudazure.name
-  virtual_network_id    = azurerm_virtual_network.net_cloudazure.id
+  virtual_network_id    = azurerm_virtual_network.red_cloud.id
 }
 
 #Gestiona el Servidor Flexible MySQL
@@ -82,7 +82,7 @@ resource "azurerm_mysql_flexible_server" "server_mysql" {
   administrator_login          = "luigui"
   administrator_password       = "Luigui.2001"
   backup_retention_days        = 7
-  delegated_subnet_id          = azurerm_subnet.red-bdd.id
+  delegated_subnet_id          = azurerm_subnet.red_bdd.id
   geo_redundant_backup_enabled = false
   private_dns_zone_id          = azurerm_private_dns_zone.dns_zone.id
   sku_name                     = "GP_Standard_D2ds_v4"
